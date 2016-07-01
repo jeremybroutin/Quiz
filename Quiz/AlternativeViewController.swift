@@ -1,30 +1,34 @@
 //
-//  ViewController.swift
+//  AlternativeViewController.swift
 //  Quiz
 //
-//  Created by Jeremy Broutin on 6/28/16.
+//  Created by Jeremy Broutin on 6/30/16.
 //  Copyright © 2016 Jeremy Broutin. All rights reserved.
-//
+
+
+// Alternative view controller using a LayoutGuide to rotate current and next questions
+// instead of hardcoding spacing constraint's constant (Silver Challenge)
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class AlternativeViewController: UIViewController {
+	
 	@IBOutlet weak var currentQuestionLabel: UILabel!
-	@IBOutlet weak var currentQuestionLabelCenterXConstraint: NSLayoutConstraint!
+	//@IBOutlet weak var currentQuestionLabelCenterXConstraint: NSLayoutConstraint!
+	var currentQuestionLabelCenterXConstraint: NSLayoutConstraint!
 	
 	@IBOutlet weak var nextQuestionLabel: UILabel!
-	@IBOutlet weak var nextQuestionLabelCenterXConstraint: NSLayoutConstraint!
-	
+	//@IBOutlet weak var nextQuestionLabelCenterXConstraint: NSLayoutConstraint!
+	var nextQuestionLabelCenterXConstraint: NSLayoutConstraint!
 	@IBOutlet weak var answerLabel: UILabel!
 	
-	 let layoutGuide = UILayoutGuide()
-	 var layoutGuideConstraint = NSLayoutConstraint() {
-			didSet{
-				oldValue.active = false
-				layoutGuideConstraint.active = true
-			}
-	 }
+	let layoutGuide = UILayoutGuide()
+	var layoutGuideConstraint = NSLayoutConstraint() {
+		didSet{
+			oldValue.active = false
+			layoutGuideConstraint.active = true
+		}
+	}
 	
 	// Model Layer
 	let questions: [String] = [
@@ -46,6 +50,14 @@ class ViewController: UIViewController {
 		
 		currentQuestionLabel.text = questions[currentQuestionIndex]
 		
+		view.addLayoutGuide(layoutGuide)
+		layoutGuide.widthAnchor.constraintEqualToAnchor(view.widthAnchor).active = true
+		currentQuestionLabelCenterXConstraint = layoutGuide.trailingAnchor.constraintEqualToAnchor(currentQuestionLabel.centerXAnchor)
+		nextQuestionLabelCenterXConstraint = layoutGuide.leadingAnchor.constraintEqualToAnchor(nextQuestionLabel.centerXAnchor)
+		
+		currentQuestionLabelCenterXConstraint.active = true
+		nextQuestionLabelCenterXConstraint.active = true
+		
 		updateOffScreenLabel()
 	}
 	
@@ -56,7 +68,7 @@ class ViewController: UIViewController {
 		nextQuestionLabel.alpha = 0
 		
 	}
-
+	
 	@IBAction func showNextQuestion(sender: AnyObject) {
 		currentQuestionIndex += 1
 		if currentQuestionIndex == questions.count {
@@ -68,7 +80,7 @@ class ViewController: UIViewController {
 		
 		animateLabelTransition()
 	}
-
+	
 	@IBAction func showAnswer(sender: AnyObject) {
 		let answer: String = answers[currentQuestionIndex]
 		answerLabel.text = answer
@@ -82,9 +94,7 @@ class ViewController: UIViewController {
 		// Animate the alpha
 		// and the center X constraints
 		
-		let screenWidth = view.frame.width
-		self.nextQuestionLabelCenterXConstraint.constant = 0
-		self.currentQuestionLabelCenterXConstraint.constant += screenWidth
+		layoutGuideConstraint = layoutGuide.centerXAnchor.constraintEqualToAnchor(view.trailingAnchor)
 		
 		UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [.CurveLinear], animations: {
 			self.currentQuestionLabel.alpha = 0
@@ -94,15 +104,18 @@ class ViewController: UIViewController {
 			self.view.layoutIfNeeded()
 			
 			}, completion: { _ in
-				swap(&self.currentQuestionLabel, &self.nextQuestionLabel)
-				swap(&self.currentQuestionLabelCenterXConstraint, &self.nextQuestionLabelCenterXConstraint)
+				
+				swap(&self.currentQuestionLabel.text, &self.nextQuestionLabel.text)
 				self.updateOffScreenLabel()
+				
 		})
 	}
 	
 	func updateOffScreenLabel(){
-		let screenWidth = view.frame.width
-		nextQuestionLabelCenterXConstraint.constant = -screenWidth
+		layoutGuideConstraint = layoutGuide.centerXAnchor.constraintEqualToAnchor(view.leadingAnchor)
+		currentQuestionLabel.alpha = 1
+		nextQuestionLabel.alpha = 0
 	}
 }
+
 
