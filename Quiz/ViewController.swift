@@ -17,6 +17,7 @@ class ViewController: UIViewController {
 	@IBOutlet weak var nextQuestionLabelCenterXConstraint: NSLayoutConstraint!
 	
 	@IBOutlet weak var answerLabel: UILabel!
+	@IBOutlet var showAnswerButton: UIButton!
 	
 	 let layoutGuide = UILayoutGuide()
 	 var layoutGuideConstraint = NSLayoutConstraint() {
@@ -46,14 +47,14 @@ class ViewController: UIViewController {
 		
 		currentQuestionLabel.text = questions[currentQuestionIndex]
 		
-		updateOffScreenLabel()
+		//updateOffScreenLabel() // disabling as it conflicts with stack view
 	}
 	
 	override func viewWillAppear(animated: Bool) {
 		super.viewWillAppear(animated)
 		
 		// Set the label's initial alpha
-		nextQuestionLabel.alpha = 0
+		// nextQuestionLabel.alpha = 0 // disabling as it conflicts with stack view
 		
 	}
 
@@ -63,15 +64,20 @@ class ViewController: UIViewController {
 			currentQuestionIndex = 0
 		}
 		let question: String = questions[currentQuestionIndex]
-		nextQuestionLabel.text = question
+		currentQuestionLabel.text = question
+		//nextQuestionLabel.text = question
 		answerLabel.text = "???"
 		
-		animateLabelTransition()
+		showAnswerButton.enabled = true
+		
+		//animateLabelTransition() // disabling as it conflicts with stack view
 	}
 
 	@IBAction func showAnswer(sender: AnyObject) {
 		let answer: String = answers[currentQuestionIndex]
 		answerLabel.text = answer
+		showAnswerButton.enabled = false
+		
 	}
 	
 	func animateLabelTransition(){
